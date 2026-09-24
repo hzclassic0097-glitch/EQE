@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCourseFilters();
   initCommunityTabs();
   initAudioDemo();
+  initCountrySearchableDropdown();
   initBookingModal();
   initFaqAccordion();
 });
@@ -47,9 +48,11 @@ function initNavbar() {
   const navbar = document.getElementById('mainNavbar');
   window.addEventListener('scroll', () => {
     if (window.scrollY > 20) {
-      navbar.classList.add('shadow-xl', 'bg-opacity-95');
+      navbar.classList.add('shadow-[0_12px_30px_-5px_rgba(7,87,91,0.1)]', 'bg-white/98');
+      navbar.classList.remove('bg-white/92');
     } else {
-      navbar.classList.remove('shadow-xl', 'bg-opacity-95');
+      navbar.classList.remove('shadow-[0_12px_30px_-5px_rgba(7,87,91,0.1)]', 'bg-white/98');
+      navbar.classList.add('bg-white/92');
     }
   });
 }
@@ -206,11 +209,11 @@ function initFeeCalculator() {
   freqButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       freqButtons.forEach(b => {
-        b.classList.remove('bg-teal-500', 'text-white', 'shadow-lg');
-        b.classList.add('bg-teal-950/60', 'text-teal-200');
+        b.classList.remove('bg-gradient-to-r', 'from-teal-600', 'to-teal-500', 'text-white', 'shadow-md', 'border-teal-500');
+        b.classList.add('bg-teal-50/70', 'text-teal-900', 'border-teal-200');
       });
-      btn.classList.add('bg-teal-500', 'text-white', 'shadow-lg');
-      btn.classList.remove('bg-teal-950/60', 'text-teal-200');
+      btn.classList.add('bg-gradient-to-r', 'from-teal-600', 'to-teal-500', 'text-white', 'shadow-md', 'border-teal-500');
+      btn.classList.remove('bg-teal-50/70', 'text-teal-900', 'border-teal-200');
       currentFreq = btn.getAttribute('data-freq');
       updateFeeDisplay();
     });
@@ -292,11 +295,11 @@ function initCourseFilters() {
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       filterBtns.forEach(b => {
-        b.classList.remove('active-filter', 'bg-teal-500', 'text-white');
-        b.classList.add('bg-teal-900/40', 'text-teal-200');
+        b.classList.remove('active-filter', 'bg-gradient-to-r', 'from-teal-600', 'to-teal-500', 'text-white', 'shadow-md');
+        b.classList.add('bg-white', 'text-teal-800', 'border', 'border-teal-200');
       });
-      btn.classList.add('active-filter', 'bg-teal-500', 'text-white');
-      btn.classList.remove('bg-teal-900/40', 'text-teal-200');
+      btn.classList.add('active-filter', 'bg-gradient-to-r', 'from-teal-600', 'to-teal-500', 'text-white', 'shadow-md');
+      btn.classList.remove('bg-white', 'text-teal-800', 'border', 'border-teal-200');
 
       const category = btn.getAttribute('data-category');
 
@@ -323,11 +326,11 @@ function initCommunityTabs() {
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       tabBtns.forEach(b => {
-        b.classList.remove('border-teal-400', 'text-teal-300', 'bg-teal-900/40');
-        b.classList.add('border-transparent', 'text-gray-400');
+        b.classList.remove('bg-gradient-to-r', 'from-teal-600', 'to-teal-500', 'text-white', 'shadow-sm');
+        b.classList.add('border-transparent', 'text-slate-600');
       });
-      btn.classList.add('border-teal-400', 'text-teal-300', 'bg-teal-900/40');
-      btn.classList.remove('border-transparent', 'text-gray-400');
+      btn.classList.add('bg-gradient-to-r', 'from-teal-600', 'to-teal-500', 'text-white', 'shadow-sm');
+      btn.classList.remove('border-transparent', 'text-slate-600');
 
       const target = btn.getAttribute('data-target');
       tabContents.forEach(content => {
@@ -342,82 +345,199 @@ function initCommunityTabs() {
 }
 
 /* ============================================================
-   5. TAJWEED AUDIO RECITATION DEMO
+   5. TAJWEED AUDIO RECITATION DEMO (REAL VOICE RECITATION)
    ============================================================ */
-let audioContext = null;
-let isAudioPlaying = false;
-let audioOscillator = null;
+const audioTracks = {
+  fatiha: {
+    title: 'Surah Al-Fatiha (The Opening)',
+    reciter: 'Tarteel Recitation by Qari Mishary Alafasy with Tajweed',
+    localSrc: 'fatiha.mp3',
+    remoteSrc: 'https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/001.mp3',
+    durationEst: '0:52',
+    arabic: 'بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ ۝ ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ ۝ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ ۝ مَـٰلِكِ يَوْمِ ٱلدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ ٱهْدِنَا ٱلصِّرَاطَ ٱلْمُسْتَقِيمَ ۝ صِرَاطَ ٱلَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ ٱلْمَغْضُوبِ عَلَيْهِمْ وَلَا ٱلضَّآلِّينَ ۝',
+    translation: '“In the Name of Allah, the Entirely Merciful, the Especially Merciful. All praise is due to Allah, Lord of the worlds. The Entirely Merciful, the Especially Merciful. Sovereign of the Day of Recompense...”'
+  },
+  ikhlas: {
+    title: 'Surah Al-Ikhlas (The Purity of Faith)',
+    reciter: 'Tarteel Recitation with Qalqalah & Ghunnah Articulation',
+    localSrc: 'ikhlas.mp3',
+    remoteSrc: 'https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/112.mp3',
+    durationEst: '0:22',
+    arabic: 'قُلْ هُوَ ٱللَّهُ أَحَدٌ ۝ ٱللَّهُ ٱلصَّمَدُ ۝ لَمْ يَلِدْ وَلَمْ يُولَدْ ۝ وَلَمْ يَكُن لَّهُۥ كُفُوًا أَحَدٌۢ ۝',
+    translation: '“Say, He is Allah, [who is] One. Allah, the Eternal Refuge. He neither begets nor is born, Nor is there to Him any equivalent.”'
+  }
+};
+
+let currentTrackKey = 'fatiha';
+
+function formatTime(seconds) {
+  if (isNaN(seconds) || seconds < 0) return '0:00';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
 
 function initAudioDemo() {
+  const audio = document.getElementById('tajweedAudio');
   const playBtn = document.getElementById('playTajweedBtn');
+  const replayBtn = document.getElementById('replayTajweedBtn');
   const waveContainer = document.getElementById('audioWaveVisualizer');
   const audioStatus = document.getElementById('audioStatusText');
+  const currentTimeEl = document.getElementById('audioCurrentTime');
+  const durationEl = document.getElementById('audioDuration');
+  const progressBar = document.getElementById('audioProgressBar');
+  const progressContainer = document.getElementById('audioProgressBarContainer');
+  const trackTabs = document.querySelectorAll('.audio-track-tab');
 
-  if (!playBtn) return;
+  if (!audio || !playBtn) return;
 
-  playBtn.addEventListener('click', () => {
-    if (!isAudioPlaying) {
-      startSimulatedRecitation(waveContainer, audioStatus, playBtn);
+  function updatePlayButton(isPlaying) {
+    if (isPlaying) {
+      playBtn.innerHTML = `
+        <i data-lucide="pause" class="w-5 h-5 fill-white"></i>
+        <span>Pause Recitation</span>
+      `;
+      if (waveContainer) waveContainer.classList.add('playing');
+      if (audioStatus) audioStatus.textContent = 'Playing authentic Qari voice...';
     } else {
-      stopSimulatedRecitation(waveContainer, audioStatus, playBtn);
+      playBtn.innerHTML = `
+        <i data-lucide="play" class="w-5 h-5 fill-white"></i>
+        <span>Listen to Voice Recitation</span>
+      `;
+      if (waveContainer) waveContainer.classList.remove('playing');
+      if (audioStatus) audioStatus.textContent = audio.ended ? 'Recitation completed' : 'Paused';
+    }
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  // Play / Pause toggle
+  playBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play().then(() => {
+        updatePlayButton(true);
+      }).catch(err => {
+        console.warn('Playback fallback to remote source:', err);
+        const track = audioTracks[currentTrackKey];
+        if (track && audio.src !== track.remoteSrc) {
+          audio.src = track.remoteSrc;
+          audio.play().then(() => updatePlayButton(true)).catch(e => console.error(e));
+        }
+      });
+    } else {
+      audio.pause();
+      updatePlayButton(false);
     }
   });
-}
 
-function startSimulatedRecitation(waveContainer, audioStatus, playBtn) {
-  isAudioPlaying = true;
-  if (waveContainer) waveContainer.classList.add('playing');
-  if (audioStatus) audioStatus.textContent = 'Listening to Tajweed Recitation: Surah Al-Fatiha (Ayat 1-4)...';
-  playBtn.innerHTML = `
-    <i data-lucide="pause" class="w-5 h-5 text-white"></i>
-    <span>Pause Recitation</span>
-  `;
-  if (window.lucide) window.lucide.createIcons();
-
-  // Try web audio melodious drone/recitation chord
-  try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (AudioContextClass) {
-      audioContext = new AudioContextClass();
-      const osc = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(220, audioContext.currentTime); // Gentle A3
-      gainNode.gain.setValueAtTime(0.04, audioContext.currentTime);
-      osc.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      osc.start();
-      audioOscillator = osc;
-    }
-  } catch (e) {
-    console.log('AudioContext initialized without tone');
+  // Replay from beginning
+  if (replayBtn) {
+    replayBtn.addEventListener('click', () => {
+      audio.currentTime = 0;
+      audio.play().then(() => {
+        updatePlayButton(true);
+      }).catch(e => console.warn(e));
+    });
   }
 
-  // Auto stop after 14 seconds
-  setTimeout(() => {
-    if (isAudioPlaying) {
-      stopSimulatedRecitation(waveContainer, audioStatus, playBtn);
+  // Update progress bar & timestamps
+  audio.addEventListener('timeupdate', () => {
+    if (currentTimeEl) currentTimeEl.textContent = formatTime(audio.currentTime);
+    if (durationEl && !isNaN(audio.duration) && audio.duration > 0) {
+      durationEl.textContent = formatTime(audio.duration);
+      if (progressBar) {
+        const pct = (audio.currentTime / audio.duration) * 100;
+        progressBar.style.width = `${pct}%`;
+      }
     }
-  }, 14000);
-}
+  });
 
-function stopSimulatedRecitation(waveContainer, audioStatus, playBtn) {
-  isAudioPlaying = false;
-  if (waveContainer) waveContainer.classList.remove('playing');
-  if (audioStatus) audioStatus.textContent = 'Click to listen to Tajweed Pronunciation Demonstration';
-  playBtn.innerHTML = `
-    <i data-lucide="play" class="w-5 h-5 text-white"></i>
-    <span>Listen to Tajweed Demonstration</span>
-  `;
-  if (window.lucide) window.lucide.createIcons();
+  audio.addEventListener('loadedmetadata', () => {
+    if (durationEl && !isNaN(audio.duration) && audio.duration > 0) {
+      durationEl.textContent = formatTime(audio.duration);
+    }
+  });
 
-  if (audioOscillator) {
-    try {
-      audioOscillator.stop();
-      audioOscillator.disconnect();
-    } catch(e) {}
-    audioOscillator = null;
+  audio.addEventListener('ended', () => {
+    updatePlayButton(false);
+    if (progressBar) progressBar.style.width = '100%';
+    if (audioStatus) audioStatus.textContent = 'Recitation complete • Click Replay to listen again';
+  });
+
+  // Seeking by clicking/touching timeline
+  if (progressContainer) {
+    const handleSeek = (clientX) => {
+      if (!isNaN(audio.duration) && audio.duration > 0) {
+        const rect = progressContainer.getBoundingClientRect();
+        const clickRatio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        audio.currentTime = clickRatio * audio.duration;
+      }
+    };
+
+    progressContainer.addEventListener('click', (e) => {
+      handleSeek(e.clientX);
+    });
+
+    progressContainer.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches[0]) {
+        handleSeek(e.touches[0].clientX);
+      }
+    }, { passive: true });
+
+    progressContainer.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches[0]) {
+        handleSeek(e.touches[0].clientX);
+      }
+    }, { passive: true });
   }
+
+  // Track switching (Fatiha / Ikhlas)
+  trackTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const trackKey = tab.getAttribute('data-track');
+      if (trackKey === currentTrackKey) return;
+
+      currentTrackKey = trackKey;
+      const track = audioTracks[trackKey];
+      if (!track) return;
+
+      // Update active tab styles
+      trackTabs.forEach(t => {
+        t.classList.remove('bg-white', 'text-teal-800', 'font-bold', 'shadow-sm', 'border-teal-200');
+        t.classList.add('text-slate-600', 'font-semibold');
+      });
+      tab.classList.add('bg-white', 'text-teal-800', 'font-bold', 'shadow-sm', 'border-teal-200');
+      tab.classList.remove('text-slate-600', 'font-semibold');
+
+      // Update text details
+      const titleEl = document.getElementById('audioTrackTitle');
+      const reciterEl = document.getElementById('audioTrackReciter');
+      const arabicEl = document.getElementById('audioAyatArabic');
+      const transEl = document.getElementById('audioAyatTranslation');
+
+      if (titleEl) titleEl.textContent = track.title;
+      if (reciterEl) reciterEl.textContent = track.reciter;
+      if (arabicEl) arabicEl.textContent = track.arabic;
+      if (transEl) transEl.textContent = track.translation;
+      if (durationEl) durationEl.textContent = track.durationEst;
+      if (currentTimeEl) currentTimeEl.textContent = '0:00';
+      if (progressBar) progressBar.style.width = '0%';
+      if (audioStatus) audioStatus.textContent = 'Ready to play';
+
+      // Load new audio track
+      audio.pause();
+      updatePlayButton(false);
+      
+      const localSource = document.getElementById('audioSourceLocal');
+      const remoteSource = document.getElementById('audioSourceRemote');
+      if (localSource) localSource.src = track.localSrc;
+      if (remoteSource) remoteSource.src = track.remoteSrc;
+      audio.src = track.localSrc;
+      audio.load();
+
+      // Auto play on select
+      audio.play().then(() => updatePlayButton(true)).catch(() => updatePlayButton(false));
+    });
+  });
 }
 
 /* ============================================================
@@ -432,6 +552,10 @@ function initBookingModal() {
   if (!modal) return;
 
   const openModal = (courseName = '') => {
+    const mobileDrawer = document.getElementById('mobileDrawer');
+    if (mobileDrawer && !mobileDrawer.classList.contains('hidden')) {
+      mobileDrawer.classList.add('hidden');
+    }
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
     if (courseName) {
@@ -483,8 +607,360 @@ function initBookingModal() {
       window.open(`https://wa.me/923001776166?text=${encodeURIComponent(text)}`, '_blank');
       closeModal();
       modalForm.reset();
+      if (window.selectBookingCountry) {
+        window.selectBookingCountry('Pakistan');
+      }
     });
   }
+}
+
+/* ============================================================
+   7. SEARCHABLE COUNTRY DROPDOWN (ALL WORLD COUNTRIES)
+   ============================================================ */
+const WORLD_COUNTRIES = [
+  { name: 'Pakistan', flag: '🇵🇰', keywords: 'pakistan pk karachi lahore islamabad rawalpindi' },
+  { name: 'Saudi Arabia', flag: '🇸🇦', keywords: 'saudi arabia ksa riyadh jeddah makkah madinah dammam' },
+  { name: 'United Arab Emirates', flag: '🇦🇪', keywords: 'united arab emirates uae dubai abu dhabi sharjah ajman' },
+  { name: 'United States', flag: '🇺🇸', keywords: 'united states usa america us new york california texas' },
+  { name: 'United Kingdom', flag: '🇬🇧', keywords: 'united kingdom uk britain england scotland london birmingham manchester' },
+  { name: 'Canada', flag: '🇨🇦', keywords: 'canada ca toronto ontario vancouver calgary' },
+  { name: 'Australia', flag: '🇦🇺', keywords: 'australia aus sydney melbourne brisbane perth' },
+  { name: 'Qatar', flag: '🇶🇦', keywords: 'qatar qa doha' },
+  { name: 'Kuwait', flag: '🇰🇼', keywords: 'kuwait kw' },
+  { name: 'Oman', flag: '🇴🇲', keywords: 'oman om muscat' },
+  { name: 'Bahrain', flag: '🇧🇭', keywords: 'bahrain bh manama' },
+  { name: 'Germany', flag: '🇩🇪', keywords: 'germany de deutschland berlin frankfurt munich' },
+  { name: 'France', flag: '🇫🇷', keywords: 'france fr paris lyon marseille' },
+  { name: 'Italy', flag: '🇮🇹', keywords: 'italy it rome milan' },
+  { name: 'Spain', flag: '🇪🇸', keywords: 'spain es espana madrid barcelona' },
+  { name: 'Afghanistan', flag: '🇦🇫', keywords: 'afghanistan af kabul' },
+  { name: 'Albania', flag: '🇦🇱', keywords: 'albania al tirana' },
+  { name: 'Algeria', flag: '🇩🇿', keywords: 'algeria dz algiers' },
+  { name: 'Andorra', flag: '🇦🇩', keywords: 'andorra ad' },
+  { name: 'Angola', flag: '🇦🇴', keywords: 'angola ao luanda' },
+  { name: 'Antigua and Barbuda', flag: '🇦🇬', keywords: 'antigua and barbuda ag' },
+  { name: 'Argentina', flag: '🇦🇷', keywords: 'argentina ar buenos aires' },
+  { name: 'Armenia', flag: '🇦🇲', keywords: 'armenia am yerevan' },
+  { name: 'Austria', flag: '🇦🇹', keywords: 'austria at osterreich vienna' },
+  { name: 'Azerbaijan', flag: '🇦🇿', keywords: 'azerbaijan az baku' },
+  { name: 'Bahamas', flag: '🇧🇸', keywords: 'bahamas bs' },
+  { name: 'Bangladesh', flag: '🇧🇩', keywords: 'bangladesh bd dhaka chittagong' },
+  { name: 'Barbados', flag: '🇧🇧', keywords: 'barbados bb' },
+  { name: 'Belarus', flag: '🇧🇾', keywords: 'belarus by minsk' },
+  { name: 'Belgium', flag: '🇧🇪', keywords: 'belgium be brussels antwerp' },
+  { name: 'Belize', flag: '🇧🇿', keywords: 'belize bz' },
+  { name: 'Benin', flag: '🇧🇯', keywords: 'benin bj' },
+  { name: 'Bhutan', flag: '🇧🇹', keywords: 'bhutan bt thimphu' },
+  { name: 'Bolivia', flag: '🇧🇴', keywords: 'bolivia bo la paz' },
+  { name: 'Bosnia and Herzegovina', flag: '🇧🇦', keywords: 'bosnia and herzegovina ba sarajevo' },
+  { name: 'Botswana', flag: '🇧🇼', keywords: 'botswana bw' },
+  { name: 'Brazil', flag: '🇧🇷', keywords: 'brazil br brasil sao paulo rio' },
+  { name: 'Brunei', flag: '🇧🇳', keywords: 'brunei bn bandar seri begawan' },
+  { name: 'Bulgaria', flag: '🇧🇬', keywords: 'bulgaria bg sofia' },
+  { name: 'Burkina Faso', flag: '🇧🇫', keywords: 'burkina faso bf' },
+  { name: 'Burundi', flag: '🇧🇮', keywords: 'burundi bi' },
+  { name: 'Cabo Verde', flag: '🇨🇻', keywords: 'cabo verde cv cape verde' },
+  { name: 'Cambodia', flag: '🇰🇭', keywords: 'cambodia kh phnom penh' },
+  { name: 'Cameroon', flag: '🇨🇲', keywords: 'cameroon cm' },
+  { name: 'Central African Republic', flag: '🇨🇫', keywords: 'central african republic cf' },
+  { name: 'Chad', flag: '🇹🇩', keywords: 'chad td' },
+  { name: 'Chile', flag: '🇨🇱', keywords: 'chile cl santiago' },
+  { name: 'China', flag: '🇨🇳', keywords: 'china cn beijing shanghai' },
+  { name: 'Colombia', flag: '🇨🇴', keywords: 'colombia co bogota' },
+  { name: 'Comoros', flag: '🇰🇲', keywords: 'comoros km moroni' },
+  { name: 'Congo', flag: '🇨🇬', keywords: 'congo cg brazzaville' },
+  { name: 'Costa Rica', flag: '🇨🇷', keywords: 'costa rica cr san jose' },
+  { name: 'Croatia', flag: '🇭🇷', keywords: 'croatia hr zagreb' },
+  { name: 'Cuba', flag: '🇨🇺', keywords: 'cuba cu havana' },
+  { name: 'Cyprus', flag: '🇨🇾', keywords: 'cyprus cy nicosia' },
+  { name: 'Czech Republic', flag: '🇨🇿', keywords: 'czech republic cz czechia prague' },
+  { name: 'Denmark', flag: '🇩🇰', keywords: 'denmark dk copenhagen' },
+  { name: 'Djibouti', flag: '🇩🇯', keywords: 'djibouti dj' },
+  { name: 'Dominica', flag: '🇩🇲', keywords: 'dominica dm' },
+  { name: 'Dominican Republic', flag: '🇩🇴', keywords: 'dominican republic do santo domingo' },
+  { name: 'Ecuador', flag: '🇪🇨', keywords: 'ecuador ec quito' },
+  { name: 'Egypt', flag: '🇪🇬', keywords: 'egypt eg misr cairo alexandria' },
+  { name: 'El Salvador', flag: '🇸🇻', keywords: 'el salvador sv' },
+  { name: 'Equatorial Guinea', flag: '🇬🇶', keywords: 'equatorial guinea gq' },
+  { name: 'Eritrea', flag: '🇪🇷', keywords: 'eritrea er asmara' },
+  { name: 'Estonia', flag: '🇪🇪', keywords: 'estonia ee tallinn' },
+  { name: 'Eswatini', flag: '🇸🇿', keywords: 'eswatini sz swaziland' },
+  { name: 'Ethiopia', flag: '🇪🇹', keywords: 'ethiopia et addis ababa' },
+  { name: 'Fiji', flag: '🇫🇯', keywords: 'fiji fj suva' },
+  { name: 'Finland', flag: '🇫🇮', keywords: 'finland fi helsinki' },
+  { name: 'Gabon', flag: '🇬🇦', keywords: 'gabon ga libreville' },
+  { name: 'Gambia', flag: '🇬🇲', keywords: 'gambia gm banjul' },
+  { name: 'Georgia', flag: '🇬🇪', keywords: 'georgia ge tbilisi' },
+  { name: 'Ghana', flag: '🇬🇭', keywords: 'ghana gh accra' },
+  { name: 'Greece', flag: '🇬🇷', keywords: 'greece gr athens' },
+  { name: 'Grenada', flag: '🇬🇩', keywords: 'grenada gd' },
+  { name: 'Guatemala', flag: '🇬🇹', keywords: 'guatemala gt' },
+  { name: 'Guinea', flag: '🇬🇳', keywords: 'guinea gn conakry' },
+  { name: 'Guinea-Bissau', flag: '🇬🇼', keywords: 'guinea-bissau gw' },
+  { name: 'Guyana', flag: '🇬🇾', keywords: 'guyana gy georgetown' },
+  { name: 'Haiti', flag: '🇭🇹', keywords: 'haiti ht port-au-prince' },
+  { name: 'Honduras', flag: '🇭🇳', keywords: 'honduras hn' },
+  { name: 'Hong Kong', flag: '🇭🇰', keywords: 'hong kong hk' },
+  { name: 'Hungary', flag: '🇭🇺', keywords: 'hungary hu budapest' },
+  { name: 'Iceland', flag: '🇮🇸', keywords: 'iceland is reykjavik' },
+  { name: 'India', flag: '🇮🇳', keywords: 'india in bharat delhi mumbai hyderabad' },
+  { name: 'Indonesia', flag: '🇮🇩', keywords: 'indonesia id jakarta surabaya' },
+  { name: 'Iran', flag: '🇮🇷', keywords: 'iran ir tehran isfahan' },
+  { name: 'Iraq', flag: '🇮🇶', keywords: 'iraq iq baghdad basra' },
+  { name: 'Ireland', flag: '🇮🇪', keywords: 'ireland ie dublin' },
+  { name: 'Ivory Coast', flag: '🇨🇮', keywords: 'ivory coast ci cote divoire abidjan' },
+  { name: 'Jamaica', flag: '🇯🇲', keywords: 'jamaica jm kingston' },
+  { name: 'Japan', flag: '🇯🇵', keywords: 'japan jp tokyo osaka' },
+  { name: 'Jordan', flag: '🇯🇴', keywords: 'jordan jo amman zarqa' },
+  { name: 'Kazakhstan', flag: '🇰🇿', keywords: 'kazakhstan kz astana almaty' },
+  { name: 'Kenya', flag: '🇰🇪', keywords: 'kenya ke nairobi mombasa' },
+  { name: 'Kiribati', flag: '🇰🇮', keywords: 'kiribati ki' },
+  { name: 'Kosovo', flag: '🇽🇰', keywords: 'kosovo xk pristina' },
+  { name: 'Kyrgyzstan', flag: '🇰🇬', keywords: 'kyrgyzstan kg bishkek' },
+  { name: 'Laos', flag: '🇱🇦', keywords: 'laos la vientiane' },
+  { name: 'Latvia', flag: '🇱🇻', keywords: 'latvia lv riga' },
+  { name: 'Lebanon', flag: '🇱🇧', keywords: 'lebanon lb beirut tripoli' },
+  { name: 'Lesotho', flag: '🇱🇸', keywords: 'lesotho ls' },
+  { name: 'Liberia', flag: '🇱🇷', keywords: 'liberia lr monrovia' },
+  { name: 'Libya', flag: '🇱🇾', keywords: 'libya ly tripoli benghazi' },
+  { name: 'Liechtenstein', flag: '🇱🇮', keywords: 'liechtenstein li vaduz' },
+  { name: 'Lithuania', flag: '🇱🇹', keywords: 'lithuania lt vilnius' },
+  { name: 'Luxembourg', flag: '🇱🇺', keywords: 'luxembourg lu' },
+  { name: 'Madagascar', flag: '🇲🇬', keywords: 'madagascar mg' },
+  { name: 'Malawi', flag: '🇲🇼', keywords: 'malawi mw' },
+  { name: 'Malaysia', flag: '🇲🇾', keywords: 'malaysia my kuala lumpur penang' },
+  { name: 'Maldives', flag: '🇲🇻', keywords: 'maldives mv male' },
+  { name: 'Mali', flag: '🇲🇱', keywords: 'mali ml bamako' },
+  { name: 'Malta', flag: '🇲🇹', keywords: 'malta mt valletta' },
+  { name: 'Marshall Islands', flag: '🇲🇭', keywords: 'marshall islands mh' },
+  { name: 'Mauritania', flag: '🇲🇷', keywords: 'mauritania mr nouakchott' },
+  { name: 'Mauritius', flag: '🇲🇺', keywords: 'mauritius mu port louis' },
+  { name: 'Mexico', flag: '🇲🇽', keywords: 'mexico mx mexico city' },
+  { name: 'Micronesia', flag: '🇫🇲', keywords: 'micronesia fm' },
+  { name: 'Moldova', flag: '🇲🇩', keywords: 'moldova md chisinau' },
+  { name: 'Monaco', flag: '🇲🇨', keywords: 'monaco mc' },
+  { name: 'Mongolia', flag: '🇲🇳', keywords: 'mongolia mn ulaanbaatar' },
+  { name: 'Montenegro', flag: '🇲🇪', keywords: 'montenegro me podgorica' },
+  { name: 'Morocco', flag: '🇲🇦', keywords: 'morocco ma maghreb rabat casablanca fes' },
+  { name: 'Mozambique', flag: '🇲🇿', keywords: 'mozambique mz maputo' },
+  { name: 'Myanmar', flag: '🇲🇲', keywords: 'myanmar mm burma yangon' },
+  { name: 'Namibia', flag: '🇳🇦', keywords: 'namibia na windhoek' },
+  { name: 'Nauru', flag: '🇳🇷', keywords: 'nauru nr' },
+  { name: 'Nepal', flag: '🇳🇵', keywords: 'nepal np kathmandu' },
+  { name: 'Netherlands', flag: '🇳🇱', keywords: 'netherlands nl holland amsterdam rotterdam the hague' },
+  { name: 'New Zealand', flag: '🇳🇿', keywords: 'new zealand nz auckland wellington christchurch aotearoa' },
+  { name: 'Nicaragua', flag: '🇳🇮', keywords: 'nicaragua ni managua' },
+  { name: 'Niger', flag: '🇳🇪', keywords: 'niger ne niamey' },
+  { name: 'Nigeria', flag: '🇳🇬', keywords: 'nigeria ng lagos abuja kano' },
+  { name: 'North Macedonia', flag: '🇲🇰', keywords: 'north macedonia mk skopje' },
+  { name: 'Norway', flag: '🇳🇴', keywords: 'norway no oslo bergen' },
+  { name: 'Palestine', flag: '🇵🇸', keywords: 'palestine ps filastin gaza jerusalem quds west bank ramallah' },
+  { name: 'Panama', flag: '🇵🇦', keywords: 'panama pa' },
+  { name: 'Papua New Guinea', flag: '🇵🇬', keywords: 'papua new guinea pg' },
+  { name: 'Paraguay', flag: '🇵🇾', keywords: 'paraguay py asuncion' },
+  { name: 'Peru', flag: '🇵🇪', keywords: 'peru pe lima' },
+  { name: 'Philippines', flag: '🇵🇭', keywords: 'philippines ph manila cebu' },
+  { name: 'Poland', flag: '🇵🇱', keywords: 'poland pl warsaw krakow polska' },
+  { name: 'Portugal', flag: '🇵🇹', keywords: 'portugal pt lisbon porto' },
+  { name: 'Romania', flag: '🇷🇴', keywords: 'romania ro bucharest' },
+  { name: 'Russia', flag: '🇷🇺', keywords: 'russia ru moscow st petersburg kazan' },
+  { name: 'Rwanda', flag: '🇷🇼', keywords: 'rwanda rw kigali' },
+  { name: 'Saint Kitts and Nevis', flag: '🇰🇳', keywords: 'saint kitts and nevis kn' },
+  { name: 'Saint Lucia', flag: '🇱🇨', keywords: 'saint lucia lc' },
+  { name: 'Saint Vincent and the Grenadines', flag: '🇻🇨', keywords: 'saint vincent vc' },
+  { name: 'Samoa', flag: '🇼🇸', keywords: 'samoa ws apia' },
+  { name: 'San Marino', flag: '🇸🇲', keywords: 'san marino sm' },
+  { name: 'Sao Tome and Principe', flag: '🇸🇹', keywords: 'sao tome and principe st' },
+  { name: 'Senegal', flag: '🇸🇳', keywords: 'senegal sn dakar' },
+  { name: 'Serbia', flag: '🇷🇸', keywords: 'serbia rs belgrade novi sad' },
+  { name: 'Seychelles', flag: '🇸🇨', keywords: 'seychelles sc victoria' },
+  { name: 'Sierra Leone', flag: '🇸🇱', keywords: 'sierra leone sl freetown' },
+  { name: 'Singapore', flag: '🇸🇬', keywords: 'singapore sg' },
+  { name: 'Slovakia', flag: '🇸🇰', keywords: 'slovakia sk bratislava' },
+  { name: 'Slovenia', flag: '🇸🇮', keywords: 'slovenia si ljubljana' },
+  { name: 'Solomon Islands', flag: '🇸🇧', keywords: 'solomon islands sb honiara' },
+  { name: 'Somalia', flag: '🇸🇴', keywords: 'somalia so mogadishu hargeisa' },
+  { name: 'South Africa', flag: '🇿🇦', keywords: 'south africa za johannesburg cape town durban' },
+  { name: 'South Korea', flag: '🇰🇷', keywords: 'south korea kr seoul busan' },
+  { name: 'South Sudan', flag: '🇸🇸', keywords: 'south sudan ss juba' },
+  { name: 'Sri Lanka', flag: '🇱🇰', keywords: 'sri lanka lk colombo kandy' },
+  { name: 'Sudan', flag: '🇸🇩', keywords: 'sudan sd khartoum omdurman' },
+  { name: 'Suriname', flag: '🇸🇷', keywords: 'suriname sr paramaribo' },
+  { name: 'Sweden', flag: '🇸🇪', keywords: 'sweden se stockholm gothenburg malmo sverige' },
+  { name: 'Switzerland', flag: '🇨🇭', keywords: 'switzerland ch swiss zurich geneva basel bern' },
+  { name: 'Syria', flag: '🇸🇾', keywords: 'syria sy damascus aleppo homs' },
+  { name: 'Taiwan', flag: '🇹🇼', keywords: 'taiwan tw taipei' },
+  { name: 'Tajikistan', flag: '🇹🇯', keywords: 'tajikistan tj dushanbe khujand' },
+  { name: 'Tanzania', flag: '🇹🇿', keywords: 'tanzania tz dar es salaam zanzibar' },
+  { name: 'Thailand', flag: '🇹🇭', keywords: 'thailand th bangkok phuket' },
+  { name: 'Timor-Leste', flag: '🇹🇱', keywords: 'timor-leste tl dili east timor' },
+  { name: 'Togo', flag: '🇹🇬', keywords: 'togo tg lome' },
+  { name: 'Tonga', flag: '🇹🇴', keywords: 'tonga to' },
+  { name: 'Trinidad and Tobago', flag: '🇹🇹', keywords: 'trinidad and tobago tt port of spain' },
+  { name: 'Tunisia', flag: '🇹🇳', keywords: 'tunisia tn tunis sousse sfax' },
+  { name: 'Turkey', flag: '🇹🇷', keywords: 'turkey tr turkiye istanbul ankara izmir bursa' },
+  { name: 'Turkmenistan', flag: '🇹🇲', keywords: 'turkmenistan tm ashgabat' },
+  { name: 'Tuvalu', flag: '🇹🇻', keywords: 'tuvalu tv' },
+  { name: 'Uganda', flag: '🇺🇬', keywords: 'uganda ug kampala' },
+  { name: 'Ukraine', flag: '🇺🇦', keywords: 'ukraine ua kyiv lviv' },
+  { name: 'Uruguay', flag: '🇺🇾', keywords: 'uruguay uy montevideo' },
+  { name: 'Uzbekistan', flag: '🇺🇿', keywords: 'uzbekistan uz tashkent samarkand bukhara' },
+  { name: 'Vanuatu', flag: '🇻🇺', keywords: 'vanuatu vu' },
+  { name: 'Vatican City', flag: '🇻🇦', keywords: 'vatican city va holy see' },
+  { name: 'Venezuela', flag: '🇻🇪', keywords: 'venezuela ve caracas' },
+  { name: 'Vietnam', flag: '🇻🇳', keywords: 'vietnam vn hanoi ho chi minh' },
+  { name: 'Yemen', flag: '🇾🇪', keywords: 'yemen ye sanaa aden' },
+  { name: 'Zambia', flag: '🇿🇲', keywords: 'zambia zm lusaka' },
+  { name: 'Zimbabwe', flag: '🇿🇼', keywords: 'zimbabwe zw harare' }
+];
+
+let selectedBookingCountry = WORLD_COUNTRIES[0];
+
+function initCountrySearchableDropdown() {
+  const container = document.getElementById('countryDropdownContainer');
+  const btn = document.getElementById('countryDropdownBtn');
+  const selectedDisplay = document.getElementById('countryDropdownSelected');
+  const chevron = document.getElementById('countryDropdownChevron');
+  const menu = document.getElementById('countryDropdownMenu');
+  const searchInput = document.getElementById('countrySearchInput');
+  const clearBtn = document.getElementById('clearCountrySearch');
+  const listContainer = document.getElementById('countryOptionsList');
+  const noMatch = document.getElementById('countryNoMatch');
+  const hiddenInput = document.getElementById('modalCountrySelect');
+
+  if (!btn || !menu || !listContainer) return;
+
+  // Render all countries into the options list
+  listContainer.innerHTML = WORLD_COUNTRIES.map(c => `
+    <button type="button" class="country-option-item w-full px-2.5 py-1.5 text-left rounded-lg flex items-center justify-between hover:bg-teal-50 transition text-slate-800 ${c.name === 'Pakistan' ? 'bg-teal-50/70 font-semibold' : ''}" data-name="${c.name}" data-flag="${c.flag}" data-keywords="${c.name.toLowerCase()} ${c.keywords.toLowerCase()}">
+      <span class="flex items-center gap-2 truncate">
+        <span class="text-base">${c.flag}</span>
+        <span class="country-name-label text-xs sm:text-sm text-slate-900 truncate">${c.name}</span>
+      </span>
+      <span class="country-check-marker text-teal-600 font-bold text-xs ${c.name === 'Pakistan' ? '' : 'hidden'}">✓</span>
+    </button>
+  `).join('');
+
+  const optionItems = listContainer.querySelectorAll('.country-option-item');
+
+  function selectCountry(countryName) {
+    if (!countryName) countryName = 'Pakistan';
+    const found = WORLD_COUNTRIES.find(c => c.name.toLowerCase() === countryName.toLowerCase()) || WORLD_COUNTRIES[0];
+    selectedBookingCountry = found;
+    if (hiddenInput) hiddenInput.value = found.name;
+    if (selectedDisplay) {
+      selectedDisplay.innerHTML = `
+        <span class="text-base">${found.flag}</span>
+        <span class="text-xs sm:text-sm font-semibold text-slate-900 truncate">${found.name}</span>
+      `;
+    }
+    // Update active highlight and checkmark
+    optionItems.forEach(item => {
+      const isSelected = item.getAttribute('data-name').toLowerCase() === found.name.toLowerCase();
+      const marker = item.querySelector('.country-check-marker');
+      if (marker) marker.classList.toggle('hidden', !isSelected);
+      item.classList.toggle('bg-teal-50/70', isSelected);
+      item.classList.toggle('font-semibold', isSelected);
+    });
+    closeDropdown();
+  }
+
+  function openDropdown() {
+    menu.classList.remove('hidden');
+    if (chevron) chevron.classList.add('rotate-180');
+    // Scroll currently selected item into view
+    const selectedItem = listContainer.querySelector(`.country-option-item[data-name="${selectedBookingCountry.name}"]`);
+    if (selectedItem) {
+      selectedItem.scrollIntoView({ block: 'nearest' });
+    }
+    setTimeout(() => {
+      if (searchInput) searchInput.focus();
+    }, 60);
+  }
+
+  function closeDropdown() {
+    menu.classList.add('hidden');
+    if (chevron) chevron.classList.remove('rotate-180');
+    if (searchInput) {
+      searchInput.value = '';
+      filterCountries('');
+    }
+  }
+
+  function filterCountries(query) {
+    const q = query.trim().toLowerCase();
+    let matches = 0;
+    optionItems.forEach(item => {
+      const keywords = item.getAttribute('data-keywords') || '';
+      const isMatch = !q || keywords.includes(q);
+      item.classList.toggle('hidden', !isMatch);
+      if (isMatch) matches++;
+    });
+    if (noMatch) noMatch.classList.toggle('hidden', matches > 0);
+    if (clearBtn) clearBtn.classList.toggle('hidden', q.length === 0);
+  }
+
+  // Toggle on button click
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (menu.classList.contains('hidden')) {
+      openDropdown();
+    } else {
+      closeDropdown();
+    }
+  });
+
+  // Select on item click
+  optionItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const name = item.getAttribute('data-name');
+      selectCountry(name);
+    });
+  });
+
+  // Live search filtering by typing
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      filterCountries(e.target.value);
+    });
+
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const firstVisible = listContainer.querySelector('.country-option-item:not(.hidden)');
+        if (firstVisible) {
+          firstVisible.click();
+        }
+      } else if (e.key === 'Escape') {
+        closeDropdown();
+      }
+    });
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+        filterCountries('');
+      }
+    });
+  }
+
+  // Close when clicking outside
+  document.addEventListener('click', (e) => {
+    if (container && !container.contains(e.target)) {
+      closeDropdown();
+    }
+  });
+
+  // Set default initial selection
+  selectCountry('Pakistan');
+  if (window.lucide) window.lucide.createIcons();
+
+  window.selectBookingCountry = selectCountry;
 }
 
 /* ============================================================
